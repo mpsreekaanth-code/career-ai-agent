@@ -8,11 +8,15 @@ import { GoogleGenAI } from "@google/genai";
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
-const allowedOrigin =
-  process.env.CLIENT_ORIGIN || "http://localhost:5173";
+const allowedOrigin = process.env.CLIENT_ORIGIN;
 
 app.use(helmet());
-app.use(cors({ origin: allowedOrigin }));
+app.use(
+  cors({
+    origin: allowedOrigin || true,
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "100kb" }));
 
 app.use(
@@ -222,7 +226,11 @@ app.post("/api/generate", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`CareerAI API listening on http://localhost:${port}`);
-  console.log("AI provider: Google Gemini");
-});
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`CareerAI API listening on http://localhost:${port}`);
+    console.log("AI provider: Google Gemini");
+  });
+}
+
+export default app;
